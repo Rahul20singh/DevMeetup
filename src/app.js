@@ -42,25 +42,42 @@ app.get("/", (req, res) => {
 // });
 
 
+// app.get("/user", (req, res)=>{
+//     res.send('pls find the user data: {"name": "rahul"}')
+// })
+
+// app.post("/user", (req, res)=>{
+//     res.send("user data is successfully pushed")
+// })
+
+// app.delete("/user", (req, res)=>{
+//     res.send("user data is successfully deleted")
+// })
+
+// app.patch("/user", (req, res)=>{
+//     res.send("user data is successfully updated by patch")
+// })
+
+// app.put("/user", (req, res)=>{
+//     res.send("user data is successfully updated by put")
+// })
+
+
+
+
+// request query
 app.get("/user", (req, res)=>{
-    res.send('pls find the user data: {"name": "rahul"}')
+    console.log("request query", req.query)
+    res.send("got request query")
+
 })
 
-app.post("/user", (req, res)=>{
-    res.send("user data is successfully pushed")
+// request Params (dynamic routes)
+app.get("/user/:userId/:age/:pass", (req, res)=>{
+    console.log("got request params", req.params)
+    res.send("got request params")
 })
 
-app.delete("/user", (req, res)=>{
-    res.send("user data is successfully deleted")
-})
-
-app.patch("/user", (req, res)=>{
-    res.send("user data is successfully updated by patch")
-})
-
-app.put("/user", (req, res)=>{
-    res.send("user data is successfully updated by put")
-})
 
 // Start the server
 app.listen(3000, () => {
