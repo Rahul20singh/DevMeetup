@@ -122,8 +122,24 @@ const auth = require("./middlewares/auth")
 
 app.use("/user", auth)
 
+app.get("/user/getData", (req, res, next)=>{
+    try {
+        
+    } catch (error) {
+        res.status(500).send("something went wrong")
+    }
+})
+
 app.get("/user",(req, res, next)=>{
-    res.send("found user data")
+    console.log("hereeeeeeeeeeeeeeeeee")
+    // res.send("found user data")
+    throw new Error("error")
+})
+
+app.use("/", (err, req, res, next)=>{
+    if(err){
+        res.status(500).send("something went wrong")
+    }
 })
 
 
