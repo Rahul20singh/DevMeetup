@@ -2,6 +2,7 @@ console.log("hello World")
 
 const express = require("express");
 const app = express();
+const auth = require("./middlewares/auth")
 
 // app.use("/", (req, res)=>{
 //     res.end("hello from the server sks");
@@ -27,9 +28,9 @@ const app = express();
 
 
 // Root path handler (for GET requests)
-app.get("/", (req, res) => {
-    res.send("hello from the server sks");
-});
+// app.get("/", (req, res) => {
+//     res.send("hello from the server sks");
+// });
 
 // Test path handler (for GET requests)
 // app.get("/test", (req, res) => {
@@ -66,16 +67,63 @@ app.get("/", (req, res) => {
 
 
 // request query
-app.get("/user", (req, res)=>{
-    console.log("request query", req.query)
-    res.send("got request query")
+// app.get("/user", (req, res)=>{
+//     console.log("request query", req.query)
+//     res.send("got request query")
 
-})
+// })
 
 // request Params (dynamic routes)
-app.get("/user/:userId/:age/:pass", (req, res)=>{
-    console.log("got request params", req.params)
-    res.send("got request params")
+// app.get("/user/:userId/:age/:pass", (req, res)=>{
+//     console.log("got request params", req.params)
+//     res.send("got request params")
+// })
+
+
+// multiple route handlers (1st way)
+
+// app.get("/user", (req, res, next)=>{
+//     console.log("first handlers")
+//     next()
+// }, 
+// (req, res, next)=>{
+//     console.log("2nd handlers")
+//     next()
+
+// },
+// (req, res, next)=>{
+//     console.log("3rd handlers")
+//     res.send("sucess")
+// }
+
+// )
+
+
+/// 2nd way
+
+// app.get("/user", (req, res, next)=>{
+//     console.log("first handlers")
+//     next()
+// }
+// )
+
+// app.get("/user",
+// (req, res, next)=>{
+//     console.log("3rd handlers")
+//     res.send("sucess")
+// }
+
+// )
+
+
+
+
+// Middlewares
+
+app.use("/user", auth)
+
+app.get("/user",(req, res, next)=>{
+    res.send("found user data")
 })
 
 
