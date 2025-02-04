@@ -20,20 +20,47 @@ const app = express();
 //     console.log("server is running successfully")
 // })
 
+// 
+
+
+
+
+
 // Root path handler (for GET requests)
 app.get("/", (req, res) => {
     res.send("hello from the server sks");
 });
 
 // Test path handler (for GET requests)
-app.get("/test", (req, res) => {
-    res.send("at test path");
-});
+// app.get("/test", (req, res) => {
+//     res.send("at test path");
+// });
 
-// Hello path handler (for GET requests)
-app.get("/hello", (req, res) => {
-    res.send("at hello path");
-});
+// // Hello path handler (for GET requests)
+// app.get("/hello", (req, res) => {
+//     res.send("at hello path");
+// });
+
+
+app.get("/user", (req, res)=>{
+    res.send('pls find the user data: {"name": "rahul"}')
+})
+
+app.post("/user", (req, res)=>{
+    res.send("user data is successfully pushed")
+})
+
+app.delete("/user", (req, res)=>{
+    res.send("user data is successfully deleted")
+})
+
+app.patch("/user", (req, res)=>{
+    res.send("user data is successfully updated by patch")
+})
+
+app.put("/user", (req, res)=>{
+    res.send("user data is successfully updated by put")
+})
 
 // Start the server
 app.listen(3000, () => {
