@@ -2,11 +2,37 @@ console.log("hello World")
 
 const express = require("express");
 const app = express();
+const bcrypt = require("bcrypt")
 const auth = require("./middlewares/auth")
 const {mongoDb} = require("./config/database")
 const USER = require("./models/user")
-
+const {validateSignUpData} = require("./utils/validations")
+const cookieParser = require("cookie-parser");
+const jwt = require("jsonwebtoken")
+const authValidation = require("./middlewares/auth")
+const authRouter = require("./routes/auth")
+const profileRouter = require("./routes/profile")
+const requestRouter = require("./routes/request")
 app.use(express.json())
+app.use(cookieParser())
+
+app.use("/", authRouter)
+app.use("/", profileRouter)
+app.use("/", requestRouter)
+
+const secretKey = "DEV@METTUP73828282";
+
+mongoDb().then(()=>{
+    console.log("database is connected ")
+    app.listen(4002, ()=>{
+        console.log("server is running at port 4000")
+    })
+})
+.catch((err)=>{
+    console.log("found err at connecting with db", err)
+})
+
+
 
 // app.use("/", (req, res)=>{
 //     res.end("hello from the server sks");
@@ -153,95 +179,188 @@ app.use(express.json())
 //     console.log("server is running successfully");
 // });
 
-app.get("/user", async(req, res, next)=>{
-    const firstName = req.body.firstName
-    console.log("firstName:::::::::", firstName)
-    try {
+// app.get("/user", async(req, res, next)=>{
+//     const firstName = req.body.firstName
+//     console.log("firstName:::::::::", firstName)
+//     try {
 
-        const getUser = await USER.find({"firstName": firstName})
-        if(getUser.length===0){
-            res.status(405).send("user not found")
-        }
-        res.send(getUser)
-    } catch (error) {
-        res.status(500).send("something went wrong")
+//         const getUser = await USER.find({"firstName": firstName})
+//         if(getUser.length===0){
+//             res.status(405).send("user not found")
+//         }
+//         res.send(getUser)
+//     } catch (error) {
+//         res.status(500).send("something went wrong")
         
-    }
+//     }
   
 
-})
+// })
 
-app.get("/feed", async(req, res, next)=>{
-    try {
+// app.get("/feed", async(req, res, next)=>{
+//     try {
 
-        const getUser = await USER.find()
-        if(getUser.length===0){
-            res.status(405).send("users not found")
-        }
-        res.send(getUser)
-    } catch (error) {
-        res.status(500).send("something went wrong")
+//         const getUser = await USER.find()
+//         if(getUser.length===0){
+//             res.status(405).send("users not found")
+//         }
+//         res.send(getUser)
+//     } catch (error) {
+//         res.status(500).send("something went wrong")
         
-    }
+//     }
   
 
-})
+// })
 
-
-app.post("/signup" ,async(req, res, next)=>{
-    let getUserData = req.body;
-    console.log("getuserdata", getUserData)
-    let user = new USER(getUserData)
-
-    try {
-        await user.save();
-        res.send("User got created");
-    } catch (error) {
-        console.log("errrrrrr", error)
-        // If there's an error, pass it to the next middleware
-        next(error); 
-    }
-
-}, (err, req, res, next)=>{
-    if(err){
-        res.status(400).send(err.message)
-    }
-})
-
-app.patch("/user" ,async(req, res, next)=>{
-    let getUserId = req.body.userId;
-    let data = req.body
-    console.log("getuserdata", data)
-    // let user = new USER(getUserData)
-
-    try {
-        await USER.findByIdAndUpdate({_id: getUserId}, data, {runValidators: true})
+// app.get("/profile", authValidation, async(req, res, next)=>{
+//     try {
+//         let user = req.user
+//         const {token} = req.cookies;
+//         const {_id} = jwt.verify(token, secretKey)
+//         if(!_id){
+//             throw new Error("Token is not present")
+//         }
+//         console.log("id", _id)
+//         const user = await USER.findById(_id)
+//         console.log("ussssssss", user)
+//         if(!user){
+//             throw new Error("User is not present, login again")
+//         }
         
-        res.send("User got updated");
-    } catch (error) {
-        console.log("errrrrrr", error)
-        // If there's an error, pass it to the next middleware
-        next(error); 
-    }
+//         res.send("profile is shown successfully: "+user)
+//     } catch (error) {
+//         res.send(error)
+//     }
+// })
 
-}, (err, req, res, next)=>{
-    if(err){
-        res.status(400).send(err.message)
-    }
-})
+// app.post("/login", async(req, res, next)=>{
+//     const {emailId, password} = req.body;
+
+//     try{
+//         let user = await USER.findOne({"emailId": emailId})
+//         console.log("user:::::::::::::::::::", user)
+//         if(!user){
+//             throw new Error("Invalid Credentials")
+//         }
+//         // const token = await jwt.sign({_id: user._id}, secretKey, {"expiresIn": "1d"})
+//         let token = await user.getJWT()
+//         console.log("token", token)
+//         res.cookie("token", token, {expires: new Date(Date.now() + 8 *3600000)})
+//         res.send("login successful")
+        
+//         // isPasswordCorrect = await bcrypt.compare(password, user.password)
+//         // if(isPasswordCorrect){
+//         //     res.cookie("token", "183hbsnsjj2i292")
+//         //     res.send("login successful")
+//         // }
+//         // else{
+//         //     throw new Error("Invalid Credentials")
+//         // }
+
+//     }
+//     catch(err){
+//         res.status(400).send("ERROR "+ err)
+//     }
+// })
+
+// app.get("/connectionRequest", authValidation, async(req, res, next)=>{
+//     const user = req.user
+//     console.log("userrrrrrrrr1", user)
+//     res.send(user)
+// })
+
+
+// app.post("/signup" ,async(req, res, next)=>{
+//     let {firstName, lastName, password, age, emailId} = req.body;
+
+//     try {
+//          // validate data
+//         validateSignUpData(req)
+
+//         // encrypt password
+//         let hashPassword = await bcrypt.hash(password, 10)
+//         console.log("hashPassword", hashPassword)
+//         let user = new USER({
+    
+//             firstName, 
+//             lastName,
+//             age,
+//             emailId,
+//             password: hashPassword
+//         })
+//         await user.save();
+//         res.send("User got created");
+//     } catch (error) {
+//         console.log("errrrrrr", error)
+//         // If there's an error, pass it to the next middleware
+//         next(error); 
+//     }
+
+// }, (err, req, res, next)=>{
+//     if(err){
+//         res.status(400).send(err.message)
+//     }
+// })
+
+// app.patch("/user" ,async(req, res, next)=>{
+//     let getUserId = req.body.userId;
+//     let data = req.body
+//     console.log("getuserdata", data)
+//     // let user = new USER(getUserData)
+
+//     try {
+//         await USER.findByIdAndUpdate({_id: getUserId}, data, {runValidators: true})
+        
+//         res.send("User got updated");
+//     } catch (error) {
+//         console.log("errrrrrr", error)
+//         // If there's an error, pass it to the next middleware
+//         next(error); 
+//     }
+
+// }, (err, req, res, next)=>{
+//     if(err){
+//         res.status(400).send(err.message)
+//     }
+// })
+
+// app.patch("/user/:userId" ,async(req, res, next)=>{
+//     let getUserId = req.params.userId;
+//     let data = req.body
+//     console.log("getuserdata", data)
+
+
+//     // let user = new USER(getUserData)
+
+//     try {
+
+//         let ALLOWED_UPDATES = ["skills", "age", "firstName", "gender"]
+//         let isUpdatAllowed = Object.keys(req.body).every((val)=>ALLOWED_UPDATES.includes(val))
+//         console.log("keys", Object.keys(req.body), isUpdatAllowed)
+//         if(!isUpdatAllowed){
+//             throw new Error("update not allowed")
+//         }
+//         await USER.findByIdAndUpdate({_id: getUserId}, data, {runValidators: true})
+        
+//         res.send("User got updated");
+//     } catch (error) {
+//         console.log("errrrrrr", error)
+//         // If there's an error, pass it to the next middleware
+//         next(error); 
+//     }
+
+// }, (err, req, res, next)=>{
+//     if(err){
+//         console.log("eeeeeeeeeeeee", err)
+//         res.status(400).send(err.message)
+//     }
+// })
 
 
 
 // start DB and then run server
-mongoDb().then(()=>{
-    console.log("database is connected ")
-    app.listen(4002, ()=>{
-        console.log("server is running at port 4000")
-    })
-})
-.catch((err)=>{
-    console.log("found err at connecting with db", err)
-})
+
 
 
 
